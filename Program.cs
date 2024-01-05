@@ -6,24 +6,75 @@ namespace OreTuner
     {
         const int gens = 6;
         const byte keenNoOre = 255;
+        const byte iron = 1;
+        const byte nickel = 24;
+        const byte silicon = 48;
+        const byte cobalt = 72;
+        const byte magnesium = 120;
+        const byte silver = 96;
+        const byte gold = 168;
+        const byte uranium = 144;
+        const byte platinum = 192;
 
         static void Main(string[] args)
         {
             var oreStrategy = new BreakTypesAndSmooth();
+            Dictionary<byte, Color> scheme = new()
+            {
+                { iron, Color.FromArgb(unchecked((int)0xFFAA2222)) },
+                { nickel, Color.FromArgb(unchecked((int)0xFF00410c)) },
+                { silicon, Color.FromArgb(unchecked((int)0xFF43004f)) },
+                { cobalt, Color.FromArgb(unchecked((int)0xFF3030BB)) },
+                { magnesium, Color.FromArgb(unchecked((int)0xFF00e099)) },
+                { silver, Color.FromArgb(unchecked((int)0xFFe0dfb4)) },
+                { gold, Color.FromArgb(unchecked((int)0xFFf0ff00)) },
+                { uranium, Color.FromArgb(unchecked((int)0xFF8aff00)) },
+                { platinum, Color.FromArgb(unchecked((int)0xFFBBBBFF)) }
+            };
             foreach (string arg in args)
             {
-                using Bitmap originalBitmap = new(arg);
+                var trimTail = arg.Replace(".png", "");
+                using Bitmap originalBitmap = new(trimTail+"_mat.png");
+                using Bitmap heightMap = new(arg);
                 OreMap map = new(originalBitmap);
                 map.ContextlessPass(oreStrategy);
                 for (int g = 0; g < gens; g++)
                 {
                     map.RunGeneration(oreStrategy);
-                    var outputPath = arg + $".Output{g}.png";
-                    map.SaveImage(outputPath);
-                    Console.WriteLine($"{outputPath} written.");
                 }
+                var outputPath = $"{trimTail}_mat.Output{gens}.png";
+                map.SaveImage(outputPath);
+                Console.WriteLine($"{outputPath} written.");
+
+                HeightMap hmap = new(heightMap);
+                hmap.Blend(map, scheme);
+                hmap.Save($"{trimTail}.Blended.png");
             }
             Console.WriteLine("Done.");
+        }
+
+        public class HeightMap
+        {
+            readonly Bitmap bitmap;
+            public HeightMap(Bitmap input)
+            {
+                this.bitmap = input;
+            }
+
+            public void Blend(OreMap map, Dictionary<byte, Color> scheme)
+            {
+                for (int y = 0; y < bitmap.Height; ++y)
+                    for (int x = 0; x < bitmap.Width; ++x)
+                    {
+                        var v = map.GetValue(x, y);
+                        if (v != keenNoOre) bitmap.SetPixel(x, y, scheme[v]);
+                    }
+            }
+
+            public void Save(string path)
+            { 
+                bitmap.Save(path);
+            }
         }
 
         public class OreMap
@@ -60,6 +111,11 @@ namespace OreTuner
                 {
                     oreData[i] = oreStrategy.ContextlessPass(oreData[i]);
                 }
+            }
+
+            public byte GetValue(int x, int y)
+            {
+                return oreData[x + 1 + (y + 1) * w];
             }
 
             public void RunGeneration(IOreStrategy oreStrategy)

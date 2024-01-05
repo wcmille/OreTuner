@@ -41,11 +41,11 @@
         public BreakTypesAndSmooth()
         {
             oreGroups.Add(iron, new List<byte>() { iron, nickel, silicon});
-            oreGroups.Add(cobalt, new List<byte>() { cobalt, iron, nickel });
-            oreGroups.Add(magnesium, new List<byte>() { magnesium, iron, silicon});
-            oreGroups.Add(gold, new List<byte>() { gold, silver, nickel });
-            oreGroups.Add(uranium, new List<byte>() { uranium, magnesium, silicon});
-            oreGroups.Add(platinum, new List<byte>() { platinum, nickel, iron });
+            oreGroups.Add(cobalt, new List<byte>() { cobalt, cobalt, iron, nickel });
+            oreGroups.Add(magnesium, new List<byte>() { magnesium, magnesium, iron, silicon});
+            oreGroups.Add(gold, new List<byte>() { gold, gold, silver, silver, nickel });
+            oreGroups.Add(uranium, new List<byte>() { uranium, uranium, magnesium, silicon});
+            oreGroups.Add(platinum, new List<byte>() { platinum, platinum, nickel, iron });
         }
 
         public byte ContextlessPass(byte v)

@@ -2,7 +2,7 @@
   "profiles": {
     "OreTuner": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\SE\\Ore Generator\\PlanetDataFiles\\Alien\\down_mat.png\""
+      "commandLineArgs": "\"C:\\SE\\Ore Generator\\PlanetDataFiles\\Alien\\front.png\""
     }
   }
 }
