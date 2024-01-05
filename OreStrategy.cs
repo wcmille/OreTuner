@@ -3,41 +3,73 @@
     public interface IOreStrategy
     {
         byte ContextlessPass(byte v);
-        byte Smooth(List<byte> oreData, int index, int w);
+        byte ContextualPass(List<byte> localData);
     }
 
-    public class OreStrategy : IOreStrategy
+    public class CreateVariation : IOreStrategy
     {
-        readonly Dictionary<byte, int> neighbors = new();
-        readonly Random rnd = new();
         const int colorDepth = 3;
-        const byte keenNoOre = 255;
+        readonly Random rnd = new();
 
         public byte ContextlessPass(byte v)
         {
-            if (v != keenNoOre)
+            return v += (byte)rnd.Next(colorDepth);
+        }
+
+        public byte ContextualPass(List<byte> localData)
+        {
+            return localData[4];
+        }
+    }
+
+    public class BreakTypesAndSmooth : IOreStrategy
+    {
+        readonly Dictionary<byte, int> neighbors = new();
+        readonly Random rnd = new();
+        const byte keenNoOre = 255;
+        readonly Dictionary<byte, List<byte>> oreGroups = new();
+        readonly byte iron = 1;
+        readonly byte nickel = 24;
+        readonly byte silicon = 48;
+        readonly byte cobalt = 72;
+        readonly byte magnesium = 120;
+        readonly byte silver = 96;
+        readonly byte gold = 168;
+        readonly byte uranium = 144;
+        readonly byte platinum = 192;
+
+        public BreakTypesAndSmooth()
+        {
+            oreGroups.Add(iron, new List<byte>() { iron, nickel, silicon});
+            oreGroups.Add(cobalt, new List<byte>() { cobalt, iron, nickel });
+            oreGroups.Add(magnesium, new List<byte>() { magnesium, iron, silicon});
+            oreGroups.Add(gold, new List<byte>() { gold, silver, nickel });
+            oreGroups.Add(uranium, new List<byte>() { uranium, magnesium, silicon});
+            oreGroups.Add(platinum, new List<byte>() { platinum, nickel, iron });
+        }
+
+        public byte ContextlessPass(byte v)
+        {
+            if (v != keenNoOre && oreGroups.ContainsKey(v))
             {
-                return (byte)(v + rnd.Next(colorDepth) * 16);
+                return oreGroups[v][rnd.Next(oreGroups[v].Count)];
             }
             return keenNoOre;
         }
 
-        public byte Smooth(List<byte> oreData, int index, int w)
+        public byte ContextualPass(List<byte> localData)
         {
-            if (oreData[index] != keenNoOre)
+            if (localData[4] != keenNoOre)
             {
                 neighbors.Clear();
-                for (int i = -1; i < 2; i++)
+                for (int i = 0; i < 9; i++)
                 {
-                    for (int j = -1; j < 2; j++)
+                    var v = localData[i];
+                    if (neighbors.TryGetValue(v, out int amt))
                     {
-                        var v = oreData[index + i + j * w];
-                        if (neighbors.TryGetValue(v, out int amt))
-                        {
-                            neighbors[v] = amt + 1;
-                        }
-                        else neighbors.Add(v, 1);
+                        neighbors[v] = amt + 1;
                     }
+                    else neighbors.Add(v, 1);
                 }
                 if (neighbors.ContainsKey(keenNoOre)) neighbors[keenNoOre] = 0;
                 byte result = neighbors.Keys.OrderBy(x => neighbors[x]).Last();

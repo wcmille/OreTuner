@@ -9,7 +9,7 @@ namespace OreTuner
 
         static void Main(string[] args)
         {
-            var oreStrategy = new OreStrategy();
+            var oreStrategy = new BreakTypesAndSmooth();
             foreach (string arg in args)
             {
                 using Bitmap originalBitmap = new(arg);
@@ -32,6 +32,7 @@ namespace OreTuner
             readonly int w;
             readonly List<byte> newOreData;
             readonly Bitmap originalBitmap;
+            readonly List<byte> localData = new();
 
             public OreMap(Bitmap originalBitmap)
             {
@@ -68,7 +69,17 @@ namespace OreTuner
                     for (int x = 1; x <= originalBitmap.Width; x++)
                     {
                         int index = x + y * w;
-                        newOreData[index] = oreStrategy.Smooth(oreData, index, w);
+                        localData.Clear();
+                        localData.Add(oreData[index - 1-w]);
+                        localData.Add(oreData[index-w]);
+                        localData.Add(oreData[index + 1 - w]);
+                        localData.Add(oreData[index - 1]);
+                        localData.Add(oreData[index]);
+                        localData.Add(oreData[index + 1]);
+                        localData.Add(oreData[index-1+w]);
+                        localData.Add(oreData[index+w]);
+                        localData.Add(oreData[index+1+w]);
+                        newOreData[index] = oreStrategy.ContextualPass(localData);
                     }
                 }
                 oreData = newOreData;
