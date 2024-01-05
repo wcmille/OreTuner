@@ -4,8 +4,8 @@ namespace OreTuner
 {
     public class Program
     {
-        const byte keenNoOre = 255;
         const int gens = 6;
+        const byte keenNoOre = 255;
 
         static void Main(string[] args)
         {
@@ -17,7 +17,7 @@ namespace OreTuner
                 map.ContextlessPass(oreStrategy);
                 for (int g = 0; g < gens; g++)
                 {
-                    map.RunGeneration();
+                    map.RunGeneration(oreStrategy);
                     var outputPath = arg + $".Output{g}.png";
                     map.SaveImage(outputPath);
                     Console.WriteLine($"{outputPath} written.");
@@ -30,7 +30,6 @@ namespace OreTuner
         {
             List<byte> oreData = new();
             readonly int w;
-            readonly Dictionary<byte, int> neighbors = new();
             readonly List<byte> newOreData;
             readonly Bitmap originalBitmap;
 
@@ -58,40 +57,18 @@ namespace OreTuner
                 //Randomize the Blue Channel
                 for (int i = 0; i < oreData.Count; ++i)
                 {
-                    if (oreData[i] != keenNoOre)
-                    {
-                        oreData[i] = oreStrategy.ContextlessPass(oreData[i]);
-                    }
+                    oreData[i] = oreStrategy.ContextlessPass(oreData[i]);
                 }
             }
 
-            public void RunGeneration()
+            public void RunGeneration(IOreStrategy oreStrategy)
             {
                 for (int y = 1; y <= originalBitmap.Height; y++)
                 {
                     for (int x = 1; x <= originalBitmap.Width; x++)
                     {
                         int index = x + y * w;
-                        if (oreData[index] != keenNoOre)
-                        {
-                            neighbors.Clear();
-                            for (int i = -1; i < 2; i++)
-                            {
-                                for (int j = -1; j < 2; j++)
-                                {
-                                    var v = oreData[index + i + j * w];
-                                    if (neighbors.TryGetValue(v, out int amt))
-                                    {
-                                        neighbors[v] = amt + 1;
-                                    }
-                                    else neighbors.Add(v, 1);
-                                }
-                            }
-                            if (neighbors.ContainsKey(keenNoOre)) neighbors[keenNoOre] = 0;
-                            var result = neighbors.Keys.OrderBy(x => neighbors[x]).Last();
-                            newOreData[index] = result;
-                        }
-                        else newOreData[index] = keenNoOre;
+                        newOreData[index] = oreStrategy.Smooth(oreData, index, w);
                     }
                 }
                 oreData = newOreData;
