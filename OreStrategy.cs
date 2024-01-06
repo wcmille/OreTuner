@@ -9,12 +9,13 @@
     public class CreateVariation : IOreStrategy
     {
         const byte keenNoOre = 255;
+        readonly byte isNull = 254;
         const int colorDepth = 3;
         readonly Random rnd = new();
 
         public byte ContextlessPass(byte v)
         {
-            if (v == keenNoOre) return keenNoOre;
+            if (v == keenNoOre || v == isNull) return keenNoOre;
             return v += (byte)rnd.Next(colorDepth);
         }
 
@@ -39,10 +40,11 @@
         readonly byte gold = 168;
         readonly byte uranium = 144;
         readonly byte platinum = 192;
+        readonly byte isNull = 254;
 
         public BreakTypesAndSmooth()
         {
-            oreGroups.Add(iron, new List<byte>() { iron, nickel, silicon});
+            oreGroups.Add(iron, new List<byte>() { iron, nickel, silicon, isNull, isNull});
             oreGroups.Add(cobalt, new List<byte>() { cobalt, cobalt, iron, nickel });
             oreGroups.Add(magnesium, new List<byte>() { magnesium, magnesium, iron, silicon});
             oreGroups.Add(gold, new List<byte>() { gold, gold, silver, silver, nickel });
