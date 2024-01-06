@@ -8,11 +8,13 @@
 
     public class CreateVariation : IOreStrategy
     {
+        const byte keenNoOre = 255;
         const int colorDepth = 3;
         readonly Random rnd = new();
 
         public byte ContextlessPass(byte v)
         {
+            if (v == keenNoOre) return keenNoOre;
             return v += (byte)rnd.Next(colorDepth);
         }
 

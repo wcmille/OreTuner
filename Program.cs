@@ -19,17 +19,36 @@ namespace OreTuner
         static void Main(string[] args)
         {
             var oreStrategy = new BreakTypesAndSmooth();
+            var depthStrategy = new CreateVariation();
             Dictionary<byte, Color> scheme = new()
             {
                 { iron, Color.FromArgb(unchecked((int)0xFFAA2222)) },
+                { iron+1, Color.FromArgb(unchecked((int)0xFFBB2222)) },
+                { iron+2, Color.FromArgb(unchecked((int)0xFFCC2222)) },
                 { nickel, Color.FromArgb(unchecked((int)0xFF00410c)) },
+                { nickel+1, Color.FromArgb(unchecked((int)0xFF00520c)) },
+                { nickel+2, Color.FromArgb(unchecked((int)0xFF00630c)) },
                 { silicon, Color.FromArgb(unchecked((int)0xFF43004f)) },
+                { silicon+1, Color.FromArgb(unchecked((int)0xFF540060)) },
+                { silicon+2, Color.FromArgb(unchecked((int)0xFF650071)) },
                 { cobalt, Color.FromArgb(unchecked((int)0xFF3030BB)) },
+                { cobalt+1, Color.FromArgb(unchecked((int)0xFF3030CC)) },
+                { cobalt+2, Color.FromArgb(unchecked((int)0xFF3030DD)) },
                 { magnesium, Color.FromArgb(unchecked((int)0xFF00e099)) },
+                { magnesium+1, Color.FromArgb(unchecked((int)0xFF00e0AA)) },
+                { magnesium+2, Color.FromArgb(unchecked((int)0xFF00e0BB)) },
                 { silver, Color.FromArgb(unchecked((int)0xFFe0dfb4)) },
+                { silver+1, Color.FromArgb(unchecked((int)0xFFe0dfc5)) },
+                { silver+2, Color.FromArgb(unchecked((int)0xFFe0dfd6)) },
                 { gold, Color.FromArgb(unchecked((int)0xFFf0ff00)) },
+                { gold+1, Color.FromArgb(unchecked((int)0xFFf1ff00)) },
+                { gold+2, Color.FromArgb(unchecked((int)0xFFf2ff00)) },
                 { uranium, Color.FromArgb(unchecked((int)0xFF8aff00)) },
-                { platinum, Color.FromArgb(unchecked((int)0xFFBBBBFF)) }
+                { uranium+1, Color.FromArgb(unchecked((int)0xFF9aff00)) },
+                { uranium+2, Color.FromArgb(unchecked((int)0xFFaaff00)) },
+                { platinum, Color.FromArgb(unchecked((int)0xFFCCCCFF)) },
+                { platinum+1, Color.FromArgb(unchecked((int)0xFFDDDDFF)) },
+                { platinum+2, Color.FromArgb(unchecked((int)0xFFEEEEFF)) }
             };
             foreach (string arg in args)
             {
@@ -42,6 +61,10 @@ namespace OreTuner
                 {
                     map.RunGeneration(oreStrategy);
                 }
+
+                map.ContextlessPass(depthStrategy);
+
+
                 var outputPath = $"{trimTail}_mat.Output{gens}.png";
                 map.SaveImage(outputPath);
                 Console.WriteLine($"{outputPath} written.");
